@@ -107,3 +107,20 @@ export const getTasks = async (req, res, next) => {
     next(error)
   }
 }
+
+export const getTaskById = async (req, res, next) => {
+  try {
+    const task = await Task.findById(req.params.id).populate(
+      "assignedTo",
+      "name email profileImageUrl"
+    )
+
+    if (!task) {
+      return next(errorHandler(404, "Task not found!"))
+    }
+
+    res.status(200).json(task)
+  } catch (error) {
+    next(error)
+  }
+}
