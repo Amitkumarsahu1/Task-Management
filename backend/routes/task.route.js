@@ -2,6 +2,7 @@ import express from "express"
 import { adminOnly, verifyToken } from "../utils/verifyUser.js"
 import {
   createTask,
+  deleteTask,
   getTaskById,
   getTasks,
   updateTask,
@@ -16,5 +17,7 @@ router.get("/", verifyToken, getTasks)
 router.get("/:id", verifyToken, getTaskById)
 
 router.put("/:id", verifyToken, updateTask)
+
+router.delete("/:id", verifyToken, adminOnly, deleteTask)
 
 export default router
