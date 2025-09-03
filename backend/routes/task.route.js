@@ -6,6 +6,7 @@ import {
   getTaskById,
   getTasks,
   updateTask,
+  updateTaskStatus,
 } from "../controller/task.controller.js"
 
 const router = express.Router()
@@ -19,5 +20,7 @@ router.get("/:id", verifyToken, getTaskById)
 router.put("/:id", verifyToken, updateTask)
 
 router.delete("/:id", verifyToken, adminOnly, deleteTask)
+
+router.put("/:id/status", verifyToken, updateTaskStatus)
 
 export default router
