@@ -9,6 +9,7 @@ import CreateTask from "./pages/admin/CreateTask"
 import PrivateRoute from "./routes/PrivateRoute"
 import UserDashboard from "./pages/user/UserDashboard"
 import TaskDetails from "./pages/user/TaskDetails"
+import MyTasks from "./pages/user/MyTasks"
 
 const App = () => {
   return (
