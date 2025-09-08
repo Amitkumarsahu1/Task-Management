@@ -10,3 +10,5 @@ const axiosInstance = axios.create({
     Accept: "application/json",
   },
 })
+
+export default axiosInstance

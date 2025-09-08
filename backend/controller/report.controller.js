@@ -1,5 +1,5 @@
 import Task from "../models/task.model.js"
-import excelJs, { Workbook } from "exceljs"
+import excelJs from "exceljs"
 import User from "../models/user.model.js"
 
 export const exportTaskReport = async (req, res, next) => {
