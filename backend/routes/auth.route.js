@@ -1,6 +1,7 @@
 import express from "express"
 import {
   signin,
+  signout,
   signup,
   updateUserProfile,
   uploadImage,
@@ -20,5 +21,7 @@ router.get("/user-profile", verifyToken, userProfile)
 router.put("/update-profile", verifyToken, updateUserProfile)
 
 router.post("/upload-image", upload.single("image"), uploadImage)
+
+router.post("/sign-out", signout)
 
 export default router
