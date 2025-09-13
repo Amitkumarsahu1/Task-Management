@@ -5,6 +5,9 @@ import axiosInstance from "../../utils/axioInstance"
 import moment from "moment"
 import { useNavigate } from "react-router-dom"
 import RecentTasks from "../../components/RecentTasks"
+import CustomPieChart from "../../components/CustomPieChart"
+
+const COLORS = ["#FF6384", "#36A2EB", "#FFCE56"]
 
 const Dashboard = () => {
   const navigate = useNavigate()
@@ -12,8 +15,30 @@ const Dashboard = () => {
   const { currentUser } = useSelector((state) => state.user)
 
   const [dashboardData, setDashboardData] = useState(null)
-  const [pieChartdData, setPieChartData] = useState(null)
+  const [pieChartData, setPieChartData] = useState(null)
   const [barChartData, setBarChartData] = useState(null)
+
+  // prepare data for pie chart
+  const prepareChartData = (data) => {
+    const taskDistribution = data?.taskDistribution || null
+    const taskPriorityLevels = data?.taskPriorityLevel || null
+
+    const taskDistributionData = [
+      { status: "Pending", count: taskDistribution?.Pending || 0 },
+      { status: "In Progress", count: taskDistribution?.InProgress || 0 },
+      { status: "Completed", count: taskDistribution?.Completed || 0 },
+    ]
+
+    setPieChartData(taskDistributionData)
+
+    const priorityLevelData = [
+      { priority: "Low", count: taskPriorityLevels?.Low || 0 },
+      { priority: "Medium", count: taskPriorityLevels?.Medium || 0 },
+      { priority: "High", count: taskPriorityLevels?.High || 0 },
+    ]
+
+    setBarChartData(priorityLevelData)
+  }
 
   const getDashboardData = async () => {
     try {
@@ -21,6 +46,7 @@ const Dashboard = () => {
 
       if (response.data) {
         setDashboardData(response.data)
+        prepareChartData(response.data?.charts || null)
       }
     } catch (error) {
       console.log("Error fetching dashboard data: ", error)
@@ -102,6 +128,21 @@ const Dashboard = () => {
         )}
 
         {/* Charts Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="bg-white p-6 rounded-xl">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">
+              Task Distribution
+            </h3>
+
+            <div className="h-64">
+              <CustomPieChart
+                data={pieChartData}
+                label="Total Balance"
+                colors={COLORS}
+              />
+            </div>
+          </div>
+        </div>
 
         {/* Recent Task Section */}
         <RecentTasks tasks={dashboardData?.recentTasks} />
