@@ -58,7 +58,42 @@ const CreateTask = () => {
   // update task
   const updateTask = async () => {}
 
-  const handleSubmit = async (e) => {}
+  const handleSubmit = async (e) => {
+    setError("")
+
+    if (!taskData.title.trim()) {
+      setError("Title is required!")
+      return
+    }
+
+    if (!taskData.description.trim()) {
+      setError("Description is required!")
+      return
+    }
+
+    if (!taskData.dueDate) {
+      setError("Due date is required!")
+      return
+    }
+
+    if (taskData.assignedTo?.length === 0) {
+      setError("Task is not assigned to any member!")
+      return
+    }
+
+    if (taskData.todoChecklist?.length === 0) {
+      setError("Add atleast one todo task!")
+      return
+    }
+
+    if (taskId) {
+      updateTask()
+
+      return
+    }
+
+    createTask()
+  }
 
   // get task info by id
   const getTaskDetailsById = async () => {}
@@ -198,14 +233,11 @@ const CreateTask = () => {
                 />
               </div>
 
-              {error && (
-                <p className="text-red-500 text-sm mt-2 font-medium">{error}</p>
-              )}
-
               <div className="flex justify-end mt-7">
                 <button
                   className="px-2 py-2 bg-green-500 border border-green-300 rounded-md text-white hover:bg-green-800 cursor-pointer w-full"
                   onClick={handleSubmit}
+                  type="button"
                 >
                   {taskId ? "UPDATE TASK" : "CREATE TASK"}
                 </button>
