@@ -18,19 +18,19 @@ export const SIDE_MENU_DATA = [
     id: 2,
     label: "Manage Task",
     icon: MdManageHistory,
-    path: "/admin/managetask",
+    path: "/admin/tasks",
   },
   {
     id: 3,
     label: "Create Task",
     icon: MdAddTask,
-    path: "/admin/createtask",
+    path: "/admin/create-task",
   },
   {
     id: 4,
     label: "Team Members",
     icon: MdPeopleAlt,
-    path: "/admin/teammembers",
+    path: "/admin/users",
   },
   {
     id: 5,
