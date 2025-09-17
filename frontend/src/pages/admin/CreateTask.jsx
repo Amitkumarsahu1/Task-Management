@@ -8,6 +8,7 @@ import "react-datepicker/dist/react-datepicker.css"
 import SelectedUsers from "../../components/SelectedUsers"
 import TodoListInput from "../../components/TodoListInput"
 import AddAttachmentsInput from "../../components/AddAttachmentsInput"
+import axiosInstance from "../../utils/axioInstance"
 
 const CreateTask = () => {
   const location = useLocation()
@@ -53,7 +54,26 @@ const CreateTask = () => {
   }
 
   // create task
-  const createTask = async () => {}
+  const createTask = async () => {
+    try {
+      const todolist = taskData.todoChecklist?.map((item) => ({
+        text: item,
+        completed: false,
+      }))
+
+      const response = await axiosInstance.post("/tasks/create", {
+        ...taskData,
+        dueDate: new Date(taskData.dueDate).toISOString(),
+        todoChecklist: todolist,
+      })
+
+      clearData()
+
+      console.log(response.data)
+    } catch (error) {
+      console.log("Error creating task: ", error)
+    }
+  }
 
   // update task
   const updateTask = async () => {}

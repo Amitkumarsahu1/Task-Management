@@ -9,7 +9,7 @@ const SelectedUsers = ({ selectedUser, setSelectedUser }) => {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [tempSelectedUser, setTempSelectedUser] = useState([])
 
-  console.log(allUsers)
+  // console.log(allUsers)
 
   const getAllUsers = async () => {
     try {
