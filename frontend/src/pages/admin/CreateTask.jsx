@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 import DashboardLayout from "../../components/DashboardLayout"
 import { MdDelete } from "react-icons/md"
@@ -9,6 +9,7 @@ import SelectedUsers from "../../components/SelectedUsers"
 import TodoListInput from "../../components/TodoListInput"
 import AddAttachmentsInput from "../../components/AddAttachmentsInput"
 import axiosInstance from "../../utils/axioInstance"
+import moment from "moment"
 
 const CreateTask = () => {
   const location = useLocation()
@@ -116,10 +117,43 @@ const CreateTask = () => {
   }
 
   // get task info by id
-  const getTaskDetailsById = async () => {}
+  const getTaskDetailsById = async () => {
+    try {
+      const response = await axiosInstance.get(`/tasks/${taskId}`)
+
+      if (response.data) {
+        const taskInfo = response.data
+        setCurrentTask(taskInfo)
+
+        setTaskData((prevState) => ({
+          ...prevState,
+          title: taskInfo?.title,
+          description: taskInfo?.description,
+          priority: taskInfo?.priority,
+          dueDate: taskInfo?.dueDate
+            ? moment(taskInfo?.dueDate).format("YYYY-MM-DD")
+            : null,
+          assignedTo: taskInfo?.assignedTo?.map((item) => item?._id || []),
+          todoChecklist:
+            taskInfo?.todoChecklist?.map((item) => item?.text) || [],
+          attachments: taskInfo?.attachments || [],
+        }))
+      }
+    } catch (error) {
+      console.log("Error fetching task details: ", error)
+    }
+  }
 
   // delete task
   const deleteTask = async () => {}
+
+  useEffect(() => {
+    if (taskId) {
+      getTaskDetailsById(taskId)
+    }
+
+    return () => {}
+  }, [taskId])
 
   return (
     <DashboardLayout activeMenu={"Create Task"}>
