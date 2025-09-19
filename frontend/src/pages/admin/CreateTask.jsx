@@ -11,6 +11,8 @@ import AddAttachmentsInput from "../../components/AddAttachmentsInput"
 import axiosInstance from "../../utils/axioInstance"
 import moment from "moment"
 import toast from "react-hot-toast"
+import Modal from "../../components/Modal"
+import DeleteAlert from "../../components/DeleteAlert"
 
 const CreateTask = () => {
   const location = useLocation()
@@ -174,7 +176,19 @@ const CreateTask = () => {
   }
 
   // delete task
-  const deleteTask = async () => {}
+  const deleteTask = async () => {
+    try {
+      await axiosInstance.delete(`/tasks/${taskId}`)
+
+      setOpenDeleteAlert(false)
+
+      toast.success("Task deleted successfully!")
+
+      navigate("/admin/tasks")
+    } catch (error) {
+      console.log("Error delating task: ", error)
+    }
+  }
 
   useEffect(() => {
     if (taskId) {
@@ -329,6 +343,17 @@ const CreateTask = () => {
           </form>
         </div>
       </div>
+
+      <Modal
+        isOpen={openDeleteAlert}
+        onClose={() => setOpenDeleteAlert(false)}
+        title={"Delete Task"}
+      >
+        <DeleteAlert
+          content="Are you sure you want to delete this task?"
+          onDelete={() => deleteTask()}
+        />
+      </Modal>
     </DashboardLayout>
   )
 }
