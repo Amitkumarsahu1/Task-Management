@@ -37,7 +37,28 @@ const TaskDetails = () => {
     }
   }
 
-  const updateTodoChecklist = async () => {}
+  const updateTodoChecklist = async (index) => {
+    const todoChecklist = [...task?.todoChecklist]
+    const taskId = id
+
+    if (todoChecklist && todoChecklist[index]) {
+      todoChecklist[index].completed = !todoChecklist[index].completed
+
+      try {
+        const response = await axiosInstance.put(`/tasks/${id}/todo`, {
+          todoChecklist,
+        })
+
+        if (response.status === 200) {
+          setTask(response.data?.task || task)
+        } else {
+          todoChecklist[index].completed = !todoChecklist[index].completed
+        }
+      } catch (error) {
+        todoChecklist[index].completed = !todoChecklist[index].completed
+      }
+    }
+  }
 
   const handleLinkClick = (link) => {
     if (!/^https?:\/\//i.test(link)) {
@@ -124,7 +145,7 @@ const TaskDetails = () => {
                       key={`todo_${index}`}
                       text={item.text}
                       isChecked={item?.completed}
-                      onChange={() => updateTodoChecklist()}
+                      onChange={() => updateTodoChecklist(index)}
                     />
                   ))}
                 </div>
