@@ -14,6 +14,8 @@ const Dashboard = () => {
   const navigate = useNavigate()
 
   const { currentUser } = useSelector((state) => state.user)
+  console.log("currentuser",currentUser);
+  
 
   const [dashboardData, setDashboardData] = useState([])
   const [pieChartData, setPieChartData] = useState([])
