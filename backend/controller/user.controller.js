@@ -51,3 +51,35 @@ export const getUserById = async (req, res, next) => {
     next(error)
   }
 }
+
+
+export const deleteUser = async (req, res, next) => {
+  const { id } = req.params
+
+  try {
+    // Log the incoming user ID
+    console.log(`Deleting user with ID: ${id}`)
+
+    // Check if user exists
+    const user = await User.findById(id)
+
+    if (!user) {
+      return next(errorHandler(404, "User not found"))
+    }
+
+    // Log before deleting
+    console.log("User found, proceeding to delete...")
+
+    // Delete the user using `findByIdAndDelete`
+    await User.findByIdAndDelete(id)  // Use this method instead of `remove()`
+
+    // Log after deletion
+    console.log("User deleted successfully!")
+
+    res.json({ success: true, message: "User deleted successfully" })
+  } catch (error) {
+    console.log("Error during user deletion:", error)  // Log the error
+    next(error)
+  }
+}
+

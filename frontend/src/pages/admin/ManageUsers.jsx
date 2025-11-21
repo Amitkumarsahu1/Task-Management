@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from "react"
 import axiosInstance from "../../utils/axioInstance"
 import DashboardLayout from "../../components/DashboardLayout"
-import { FaFileAlt } from "react-icons/fa"
+import { FaFileAlt, FaTrash } from "react-icons/fa"
 import UserCard from "../../components/UserCard"
 import toast from "react-hot-toast"
 
 const ManageUsers = () => {
   const [allUsers, setAllUsers] = useState([])
 
+  // Function to fetch all users
   const getAllUsers = async () => {
     try {
       const response = await axiosInstance.get("/users/get-users")
-
       if (response.data?.length > 0) {
         setAllUsers(response.data)
       }
@@ -20,23 +20,34 @@ const ManageUsers = () => {
     }
   }
 
+  // Function to delete a user
+  const handleDeleteUser = async (userId) => {
+    try {
+      const response = await axiosInstance.delete(`/users/delete-user/${userId}`)
+      if (response.data.success) {
+        toast.success("User deleted successfully!")
+        // Refresh the user list after successful deletion
+        setAllUsers(allUsers.filter((user) => user._id !== userId))
+      }
+    } catch (error) {
+      console.log("Error deleting user: ", error)
+      toast.error("Error deleting user. Please try again!")
+    }
+  }
+
+  // Function to download user report
   const handleDownloadReport = async () => {
     try {
       const response = await axiosInstance.get("/reports/export/users", {
         responseType: "blob",
       })
-
-      // create a url for the blob
+      // create a URL for the blob
       const url = window.URL.createObjectURL(new Blob([response.data]))
       const link = document.createElement("a")
-
       link.href = url
-
       link.setAttribute("download", "user_details.xlsx")
       document.body.appendChild(link)
-
       link.click()
-
       document.body.removeChild(link)
       window.URL.revokeObjectURL(url)
     } catch (error) {
@@ -69,7 +80,16 @@ const ManageUsers = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
           {allUsers?.map((user) => (
-            <UserCard key={user._id} userInfo={user} />
+            <div key={user._id} className="relative">
+              <UserCard userInfo={user} />
+              {/* Add Delete Button */}
+              <button
+                onClick={() => handleDeleteUser(user._id)}
+                className="absolute top-2 right-2 text-red-600 hover:text-red-800"
+              >
+                <FaTrash className="text-xl" />
+              </button>
+            </div>
           ))}
         </div>
       </div>
