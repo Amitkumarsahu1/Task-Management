@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 import DashboardLayout from "../../components/DashboardLayout"
-import { MdDelete } from "react-icons/md"
+import { MdDelete, MdSave, MdAdd } from "react-icons/md"
+import { FiCalendar, FiAlertCircle, FiCheckCircle } from "react-icons/fi"
 import DatePicker from "react-datepicker"
-
 import "react-datepicker/dist/react-datepicker.css"
 import SelectedUsers from "../../components/SelectedUsers"
 import TodoListInput from "../../components/TodoListInput"
@@ -17,7 +17,6 @@ import DeleteAlert from "../../components/DeleteAlert"
 const CreateTask = () => {
   const location = useLocation()
   const { taskId } = location.state || {}
-
   const navigate = useNavigate()
 
   const [taskData, setTaskData] = useState({
@@ -31,10 +30,8 @@ const CreateTask = () => {
   })
 
   const [currentTask, setCurrentTask] = useState(null)
-
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
-
   const [openDeleteAlert, setOpenDeleteAlert] = useState(false)
 
   const handleValueChange = (key, value) => {
@@ -45,7 +42,6 @@ const CreateTask = () => {
   }
 
   const clearData = () => {
-    // reset form data
     setTaskData({
       title: "",
       description: "",
@@ -57,9 +53,9 @@ const CreateTask = () => {
     })
   }
 
-  // create task
   const createTask = async () => {
     try {
+      setLoading(true)
       const todolist = taskData.todoChecklist?.map((item) => ({
         text: item,
         completed: false,
@@ -72,19 +68,18 @@ const CreateTask = () => {
       })
 
       toast.success("Task created successfully!")
-
       clearData()
-
-      // console.log(response.data)
     } catch (error) {
       console.log("Error creating task: ", error)
       toast.error("Error creating task!")
+    } finally {
+      setLoading(false)
     }
   }
 
-  // update task
   const updateTask = async () => {
     try {
+      setLoading(true)
       const todolist = taskData.todoChecklist?.map((item) => {
         const prevTodoChecklist = currentTask?.todoChecklist || []
         const matchedTask = prevTodoChecklist.find((task) => task.text === item)
@@ -102,11 +97,12 @@ const CreateTask = () => {
       })
 
       toast.success("Task updated successfully!")
-
       console.log(response.data)
     } catch (error) {
       console.log("Error updating task: ", error)
       toast.error("Error updating task!")
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -140,14 +136,12 @@ const CreateTask = () => {
 
     if (taskId) {
       updateTask()
-
       return
     }
 
     createTask()
   }
 
-  // get task info by id
   const getTaskDetailsById = async () => {
     try {
       const response = await axiosInstance.get(`/tasks/${taskId}`)
@@ -175,15 +169,11 @@ const CreateTask = () => {
     }
   }
 
-  // delete task
   const deleteTask = async () => {
     try {
       await axiosInstance.delete(`/tasks/${taskId}`)
-
       setOpenDeleteAlert(false)
-
       toast.success("Task deleted successfully!")
-
       navigate("/admin/tasks")
     } catch (error) {
       console.log("Error delating task: ", error)
@@ -194,60 +184,88 @@ const CreateTask = () => {
     if (taskId) {
       getTaskDetailsById(taskId)
     }
-
     return () => {}
   }, [taskId])
 
+  const getPriorityColor = (priority) => {
+    switch (priority) {
+      case "High":
+        return "bg-red-50 border-red-200 text-red-700"
+      case "Medium":
+        return "bg-amber-50 border-amber-200 text-amber-700"
+      default:
+        return "bg-emerald-50 border-emerald-200 text-emerald-700"
+    }
+  }
+
   return (
     <DashboardLayout activeMenu={"Create Task"}>
-      <div className="p-6">
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-800">
-              {taskId ? "Update Task" : "Create New Task"}
-            </h2>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/20 to-indigo-50/10 p-6">
+        <div className="max-w-5xl mx-auto">
+          {/* Header Card */}
+          <div className="bg-white rounded-2xl shadow-lg mb-6 overflow-hidden">
+            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-6">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                  <h1 className="text-3xl font-bold text-white mb-2">
+                    {taskId ? "Update Task" : "Create New Task"}
+                  </h1>
+                  <p className="text-blue-100 text-sm">
+                    {taskId
+                      ? "Modify task details and update assignments"
+                      : "Fill in the details to create a new task"}
+                  </p>
+                </div>
 
-            {taskId && (
-              <button
-                className="flex items-center gap-2 text-red-600 hover:text-red-800"
-                onClick={() => setOpenDeleteAlert(true)}
-              >
-                <MdDelete className="text-lg" /> Delete Task
-              </button>
+                {taskId && (
+                  <button
+                    onClick={() => setOpenDeleteAlert(true)}
+                    className="group flex items-center gap-2 px-6 py-3 bg-white/10 hover:bg-red-500 text-white rounded-xl font-medium transition-all duration-200 border border-white/20 hover:border-red-500"
+                  >
+                    <MdDelete className="text-xl group-hover:rotate-12 transition-transform" />
+                    Delete Task
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Error Alert */}
+            {error && (
+              <div className="mx-8 mt-6 p-4 bg-red-50 border-l-4 border-red-500 rounded-lg">
+                <div className="flex items-center gap-3">
+                  <FiAlertCircle className="text-red-500 text-xl flex-shrink-0" />
+                  <p className="text-red-700 font-medium">{error}</p>
+                </div>
+              </div>
             )}
           </div>
 
-          {error && (
-            <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-md">
-              {error}
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit}>
-            <div className="space-y-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+          {/* Form Card */}
+          <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+            <form className="p-8 space-y-8">
+              {/* Task Title */}
+              <div className="space-y-2">
+                <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
                   Task Title <span className="text-red-500">*</span>
                 </label>
-
                 <input
                   type="text"
-                  placeholder="Enter task title"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Enter a descriptive task title..."
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
                   value={taskData.title}
                   onChange={(e) => handleValueChange("title", e.target.value)}
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Description
+              {/* Description */}
+              <div className="space-y-2">
+                <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+                  Description <span className="text-red-500">*</span>
                 </label>
-
                 <textarea
-                  placeholder="Enter task description"
-                  rows={4}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Provide detailed task description..."
+                  rows={5}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-gray-400 resize-none"
                   value={taskData.description}
                   onChange={(e) =>
                     handleValueChange("description", e.target.value)
@@ -255,92 +273,135 @@ const CreateTask = () => {
                 />
               </div>
 
+              {/* Priority and Due Date */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Priority
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+                    Priority Level <span className="text-red-500">*</span>
                   </label>
-
-                  <select
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    value={taskData.priority}
-                    onChange={(e) =>
-                      handleValueChange("priority", e.target.value)
-                    }
-                  >
-                    <option value="Low">Low</option>
-                    <option value="Medium">Medium</option>
-                    <option value="High">High</option>
-                  </select>
+                  <div className="relative">
+                    <select
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-gray-400 appearance-none bg-white cursor-pointer"
+                      value={taskData.priority}
+                      onChange={(e) =>
+                        handleValueChange("priority", e.target.value)
+                      }
+                    >
+                      <option value="Low">🟢 Low Priority</option>
+                      <option value="Medium">🟡 Medium Priority</option>
+                      <option value="High">🔴 High Priority</option>
+                    </select>
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                      <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </div>
+                  </div>
+                  <div className={`mt-2 px-3 py-2 rounded-lg border text-sm font-medium ${getPriorityColor(taskData.priority)}`}>
+                    Current: {taskData.priority} Priority
+                  </div>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Due Date
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+                    <FiCalendar className="text-blue-500" />
+                    Due Date <span className="text-red-500">*</span>
                   </label>
-
                   <div className="relative">
                     <DatePicker
                       selected={taskData.dueDate}
                       onChange={(data) => handleValueChange("dueDate", data)}
                       minDate={new Date()}
-                      placeholderText="Select due date"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholderText="Select due date..."
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-gray-400"
+                      dateFormat="MMMM d, yyyy"
                     />
                   </div>
                 </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Assign To
+              {/* Assign To Section */}
+              <div className="space-y-3">
+                <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+                  Assign Team Members <span className="text-red-500">*</span>
                 </label>
-
-                <SelectedUsers
-                  selectedUser={taskData.assignedTo}
-                  setSelectedUser={(value) =>
-                    handleValueChange("assignedTo", value)
-                  }
-                />
+                <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
+                  <SelectedUsers
+                    selectedUser={taskData.assignedTo}
+                    setSelectedUser={(value) =>
+                      handleValueChange("assignedTo", value)
+                    }
+                  />
+                </div>
               </div>
 
-              <div className="mt-3">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  TODO Checklist
+              {/* TODO Checklist */}
+              <div className="space-y-3">
+                <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+                  <FiCheckCircle className="text-blue-500" />
+                  TODO Checklist <span className="text-red-500">*</span>
                 </label>
-
-                <TodoListInput
-                  todoList={taskData?.todoChecklist}
-                  setTodoList={(value) =>
-                    handleValueChange("todoChecklist", value)
-                  }
-                />
+                <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
+                  <TodoListInput
+                    todoList={taskData?.todoChecklist}
+                    setTodoList={(value) =>
+                      handleValueChange("todoChecklist", value)
+                    }
+                  />
+                </div>
               </div>
 
-              <div className="mt-3">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Add Attachments
+              {/* Attachments */}
+              <div className="space-y-3">
+                <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+                  Attachments
                 </label>
-
-                <AddAttachmentsInput
-                  attachments={taskData?.attachments}
-                  setAttachments={(value) =>
-                    handleValueChange("attachments", value)
-                  }
-                />
+                <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
+                  <AddAttachmentsInput
+                    attachments={taskData?.attachments}
+                    setAttachments={(value) =>
+                      handleValueChange("attachments", value)
+                    }
+                  />
+                </div>
               </div>
 
-              <div className="flex justify-end mt-7">
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
                 <button
-                  className="px-2 py-2 bg-green-500 border border-green-300 rounded-md text-white hover:bg-green-800 cursor-pointer w-full"
-                  onClick={handleSubmit}
                   type="button"
+                  onClick={() => navigate(-1)}
+                  className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-all duration-200"
                 >
-                  {taskId ? "UPDATE TASK" : "CREATE TASK"}
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSubmit}
+                  disabled={loading}
+                  className="flex-1 group relative px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-700 to-indigo-700 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                  <span className="relative flex items-center justify-center gap-2">
+                    {loading ? (
+                      <>
+                        <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                        </svg>
+                        Processing...
+                      </>
+                    ) : (
+                      <>
+                        {taskId ? <MdSave className="text-xl" /> : <MdAdd className="text-xl" />}
+                        {taskId ? "Update Task" : "Create Task"}
+                      </>
+                    )}
+                  </span>
                 </button>
               </div>
-            </div>
-          </form>
+            </form>
+          </div>
         </div>
       </div>
 
@@ -350,7 +411,7 @@ const CreateTask = () => {
         title={"Delete Task"}
       >
         <DeleteAlert
-          content="Are you sure you want to delete this task?"
+          content="Are you sure you want to delete this task? This action cannot be undone."
           onDelete={() => deleteTask()}
         />
       </Modal>
