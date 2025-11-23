@@ -18,6 +18,15 @@ const TaskCard = ({
   todoChecklist,
   onClick,
 }) => {
+
+  
+  const computedCompletedCount =
+    typeof completedTodoCount === "number"
+      ? completedTodoCount
+      : Array.isArray(todoChecklist)
+      ? todoChecklist.filter((t) => t.completed).length
+      : 0
+
   const getStatusTagColor = () => {
     switch (status) {
       case "Pending":
@@ -46,19 +55,15 @@ const TaskCard = ({
 
   return (
     <div
-      className="bg-white rounded-xl py-4 shadow-md shadow-gray-100 border border-gray-200/50 cursor-pointer"
+      className="bg-white rounded-xl py-4 shadow-md border border-gray-200 cursor-pointer w-[250px]"
       onClick={onClick}
     >
       <div className="flex items-end gap-3 px-4">
-        <div
-          className={`text-[11px] font-medium ${getStatusTagColor()} px-4 py-0.5 rounded-lg`}
-        >
+        <div className={`text-[11px] font-medium ${getStatusTagColor()} px-4 py-0.5 rounded-lg`}>
           {status}
         </div>
 
-        <div
-          className={`text-[11px] font-medium ${getPriorityTagColor()} px-4 py-0.5 rounded-lg`}
-        >
+        <div className={`text-[11px] font-medium ${getPriorityTagColor()} px-4 py-0.5 rounded-lg`}>
           {priority} Priority
         </div>
       </div>
@@ -72,18 +77,17 @@ const TaskCard = ({
             : "border-violet-500"
         }`}
       >
-        <p className="text-lg font-medium text-gray-800 mt-4 line-clamp-2">
-          {title}
-        </p>
+        <p className="text-lg font-medium text-gray-800 mt-4 line-clamp-2">{title}</p>
 
         <p className="text-sm text-gray-500 mt-1.5 line-clamp-2 leading-[18px]">
           {description}
         </p>
 
-        <p className="text-[13px] text-gray-700/80 font-medium mt-2 mb-2 leading-[18px]">
+        
+        <p className="text-[13px] text-gray-700/80 font-medium mt-2 mb-2">
           Task Done:{" "}
           <span className="font-semibold text-gray-700">
-            {completedTodoCount} / {todoChecklist.length || 0}
+            {computedCompletedCount} / {todoChecklist?.length || 0}
           </span>
         </p>
 
@@ -94,7 +98,6 @@ const TaskCard = ({
         <div className="flex items-center justify-between my-1">
           <div>
             <label className="text-xs text-gray-500">Start Date</label>
-
             <p className="text-[13px] font-medium text-gray-900">
               {moment(createdAt).format("Do MMM YYYY")}
             </p>
@@ -102,7 +105,6 @@ const TaskCard = ({
 
           <div>
             <label className="text-xs text-gray-500">Due Date</label>
-
             <p className="text-[13px] font-medium text-gray-900">
               {moment(dueDate).format("Do MMM YYYY")}
             </p>
@@ -115,7 +117,6 @@ const TaskCard = ({
           {attachmentCount > 0 && (
             <div className="flex items-center gap-2 bg-blue-50 px-2.5 py-1.5 rounded-lg">
               <FaFileLines className="text-primary" />
-
               <span className="text-xs text-gray-900">{attachmentCount}</span>
             </div>
           )}

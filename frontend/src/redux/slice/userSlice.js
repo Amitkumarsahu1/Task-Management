@@ -18,7 +18,6 @@ const userSlice = createSlice({
     signInSuccess: (state, action) => {
       state.loading = false
       state.currentUser = action.payload
-
       state.error = null
     },
 
@@ -32,10 +31,22 @@ const userSlice = createSlice({
       state.error = null
       state.loading = false
     },
+
+   
+    updateProfileImage: (state, action) => {
+      if (state.currentUser) {
+        state.currentUser.profileImageUrl = action.payload
+      }
+    },
   },
 })
 
-export const { signInStart, signInSuccess, signInFailure, signOutSuccess } =
-  userSlice.actions
+export const {
+  signInStart,
+  signInSuccess,
+  signInFailure,
+  signOutSuccess,
+  updateProfileImage,
+} = userSlice.actions
 
 export default userSlice.reducer

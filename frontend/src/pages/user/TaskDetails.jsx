@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom"
 import axiosInstance from "../../utils/axioInstance"
 import DashboardLayout from "../../components/DashboardLayout"
 import moment from "moment"
-import AvatarGroup from "../../components/AvatarGroup" // Assuming this component is imported
+import AvatarGroup from "../../components/AvatarGroup" 
 import { FaExternalLinkAlt, FaRegClock, FaLayerGroup,FaSpinner } from "react-icons/fa"
 import { IoCheckmarkDoneCircleSharp } from "react-icons/io5"
 import { MdOutlineIncompleteCircle } from "react-icons/md"
@@ -47,7 +47,7 @@ const TaskDetails = () => {
     } catch (error) {
       console.error("Error fetching task details: ", error)
       toast.error("Failed to load task details.")
-      setTask(null); // Clear task if fetching fails
+      setTask(null); 
     } finally {
       setLoading(false)
     }
@@ -60,7 +60,7 @@ const TaskDetails = () => {
     const originalCompletedStatus = todoChecklist[index].completed
     todoChecklist[index].completed = !todoChecklist[index].completed
 
-    // Optimistically update the local state first
+    
     setTask({ ...task, todoChecklist })
 
     try {
@@ -69,17 +69,17 @@ const TaskDetails = () => {
       })
 
       if (response.status === 200) {
-        // Update state with server response (if the server returns updated task including status change)
+        
         setTask(response.data?.task || { ...task, todoChecklist })
         toast.success("Checklist updated!")
       } else {
-        // Revert on server error
+        
         todoChecklist[index].completed = originalCompletedStatus
         setTask({ ...task, todoChecklist })
         toast.error("Failed to update checklist.")
       }
     } catch (error) {
-      // Revert on network/API error
+      
       todoChecklist[index].completed = originalCompletedStatus
       setTask({ ...task, todoChecklist })
       console.error("Error updating checklist:", error)
@@ -127,7 +127,7 @@ const TaskDetails = () => {
       <div className="mt-8 px-4 sm:px-6 lg:px-8">
         {task && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Task Details Main Section (2/3 width on large screens) */}
+            
             <div className="lg:col-span-2 space-y-6">
               <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-8">
                 {/* Title and Status */}
@@ -200,7 +200,7 @@ const TaskDetails = () => {
               )}
             </div>
 
-            {/* Task Meta Info Sidebar (1/3 width on large screens) */}
+          
             <div className="lg:col-span-1 space-y-6">
               <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 space-y-6">
                 <h3 className="text-lg font-bold text-gray-800 border-b pb-3 mb-3">
@@ -238,7 +238,7 @@ const TaskDetails = () => {
                       maxVisible={5}
                     />
                     
-                    {/* List of names (The fix for your previous issue) */}
+                   
                     <div className="mt-3 space-y-1">
                       {task.assignedTo?.length > 0 ? (
                         task.assignedTo.map((user, idx) => (

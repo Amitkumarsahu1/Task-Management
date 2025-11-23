@@ -4,6 +4,8 @@ import { useDispatch, useSelector } from "react-redux"
 import { signOutSuccess } from "../redux/slice/userSlice"
 import { useNavigate } from "react-router-dom"
 import { SIDE_MENU_DATA, USER_SIDE_MENU_DATA } from "../utils/data"
+import { updateProfileImage } from "../redux/slice/userSlice"
+
 
 const SideMenu = ({ activeMenu }) => {
   const dispatch = useDispatch()
@@ -13,8 +15,6 @@ const SideMenu = ({ activeMenu }) => {
   const { currentUser } = useSelector((state) => state.user)
 
   const handleClick = (route) => {
-    console.log(route)
-
     if (route === "logout") {
       handleLogut()
       return
@@ -42,11 +42,9 @@ const SideMenu = ({ activeMenu }) => {
         currentUser?.role === "admin" ? SIDE_MENU_DATA : USER_SIDE_MENU_DATA
       )
     }
-
-    return () => {}
   }, [currentUser])
 
-  // Get initials from name
+  
   const getInitials = (name) => {
     if (!name) return "U"
     const words = name.trim().split(" ")
@@ -54,7 +52,7 @@ const SideMenu = ({ activeMenu }) => {
     return (words[0][0] + words[words.length - 1][0]).toUpperCase()
   }
 
-  // Generate color based on name
+  
   const getAvatarColor = (name) => {
     if (!name) return "bg-blue-500"
     const colors = [
@@ -73,14 +71,50 @@ const SideMenu = ({ activeMenu }) => {
     return colors[index]
   }
 
+  
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+
+    const formData = new FormData()
+    formData.append("profileImage", file)
+
+    try {
+      const res = await axiosInstance.post("/auth/update-profile-image", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      })
+
+      if (res.data?.profileImageUrl) {
+        dispatch(updateProfileImage(res.data.profileImageUrl))
+
+      }
+    } catch (error) {
+      console.error("Image Upload Failed:", error)
+    }
+  }
+
   return (
     <div className="w-64 h-full flex flex-col bg-white lg:border-r lg:border-gray-200">
       {/* Profile Section */}
       <div className="p-6 border-b border-gray-100">
         <div className="flex flex-col items-center">
-          {/* Avatar */}
+        
           <div className="relative mb-4 group">
-            <div className="w-20 h-20 rounded-full overflow-hidden ring-4 ring-gray-100 group-hover:ring-blue-100 transition-all duration-300">
+
+            
+            <input
+              type="file"
+              accept="image/*"
+              id="profileImageInput"
+              className="hidden"
+              onChange={handleImageUpload}
+            />
+
+            <div
+              className="w-20 h-20 rounded-full overflow-hidden ring-4 ring-gray-100 hover:ring-blue-200 
+                         cursor-pointer transition-all duration-300"
+              onClick={() => document.getElementById("profileImageInput").click()}
+            >
               {currentUser?.profileImageUrl ? (
                 <img
                   src={currentUser.profileImageUrl}
@@ -97,12 +131,12 @@ const SideMenu = ({ activeMenu }) => {
                 </div>
               )}
             </div>
+
             
-            {/* Online Indicator */}
             <div className="absolute bottom-1 right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
           </div>
 
-          {/* Admin Badge */}
+          
           {currentUser?.role === "admin" && (
             <div className="mb-3 px-3 py-1 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-xs font-semibold shadow-sm">
               Admin
@@ -130,38 +164,32 @@ const SideMenu = ({ activeMenu }) => {
               <button
                 key={`menu_${index}`}
                 onClick={() => handleClick(item.path)}
-                className={`
-                  w-full flex items-center gap-3 px-4 py-3 rounded-xl
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl
                   text-sm font-medium transition-all duration-200
                   ${
                     isActive
                       ? "bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-600 shadow-sm"
                       : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
                   }
-                  group relative overflow-hidden
-                `}
+                  group relative overflow-hidden`}
               >
-                {/* Active Indicator */}
                 {isActive && (
                   <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-gradient-to-b from-blue-500 to-indigo-600 rounded-r-full"></div>
                 )}
 
-                {/* Icon */}
                 <div
-                  className={`
-                  flex-shrink-0 text-xl transition-transform duration-200
-                  ${isActive ? "scale-110" : "group-hover:scale-105"}
-                `}
+                  className={`flex-shrink-0 text-xl transition-transform duration-200
+                  ${isActive ? "scale-110" : "group-hover:scale-105"}`}
                 >
                   <Icon />
                 </div>
 
-                {/* Label */}
                 <span className="flex-1 text-left">{item.label}</span>
 
-                {/* Hover Effect */}
                 {!isActive && (
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-50/0 to-indigo-50/0 group-hover:from-blue-50/50 group-hover:to-indigo-50/50 transition-all duration-200 -z-10 rounded-xl"></div>
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-50/0
+                    to-indigo-50/0 group-hover:from-blue-50/50 group-hover:to-indigo-50/50 
+                    transition-all duration-200 -z-10 rounded-xl"></div>
                 )}
               </button>
             )
@@ -169,7 +197,7 @@ const SideMenu = ({ activeMenu }) => {
         </nav>
       </div>
 
-      {/* Footer - Optional branding */}
+      {/* Footer */}
       <div className="p-4 border-t border-gray-100">
         <div className="text-center">
           <p className="text-xs text-gray-400">Task Manager Pro</p>
