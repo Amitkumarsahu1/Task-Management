@@ -4,7 +4,7 @@ import { getUserById, getUsers,deleteUser } from "../controller/user.controller.
 
 const router = express.Router()
 
-// User mangement route
+
 router.get("/get-users", verifyToken, adminOnly, getUsers)
 
 router.get("/:id", verifyToken, getUserById)

@@ -21,6 +21,13 @@ router.get("/user-profile", verifyToken, userProfile)
 router.put("/update-profile", verifyToken, updateUserProfile)
 
 router.post("/upload-image", upload.single("image"), uploadImage)
+router.post(
+  "/update-profile-image",
+  verifyToken,
+  upload.single("profileImage"),
+  uploadImage
+);
+
 
 router.post("/sign-out", signout)
 

@@ -69,7 +69,7 @@ export const getTasks = async (req, res, next) => {
       })
     )
 
-    // status summary count
+    
 
     const allTasks = await Task.countDocuments(
       req.user.role === "admin" ? {} : { assignedTo: req.user.id }
@@ -78,8 +78,7 @@ export const getTasks = async (req, res, next) => {
     const pendingTasks = await Task.countDocuments({
       ...filter,
       status: "Pending",
-      //   if logged in user is not admin then add assignedTo filter
-      //  if logged in user is an admin then nothing to do, just count
+      
       ...(req.user.role !== "admin" && { assignedTo: req.user.id }),
     })
 
@@ -232,7 +231,7 @@ export const updateTaskChecklist = async (req, res, next) => {
     task.progress =
       totalItems > 0 ? Math.round((completedCount / totalItems) * 100) : 0
 
-    //   4 task, 1 complete  completedCount / totalItems = (1/4 ) * 100= 25
+    
 
     if (task.progress === 100) {
       task.status = "Completed"
@@ -259,7 +258,7 @@ export const updateTaskChecklist = async (req, res, next) => {
 
 export const getDashboardData = async (req, res, next) => {
   try {
-    // Fetch statistics
+    
     const totalTasks = await Task.countDocuments()
     const pendingTasks = await Task.countDocuments({ status: "Pending" })
     const completedTasks = await Task.countDocuments({ status: "Completed" })
@@ -280,7 +279,7 @@ export const getDashboardData = async (req, res, next) => {
     ])
 
     const taskDistribution = taskStatuses.reduce((acc, status) => {
-      const formattedKey = status.replace(/\s+/g, "") //remove spaces for response keys
+      const formattedKey = status.replace(/\s+/g, "") 
 
       acc[formattedKey] =
         taskDistributionRaw.find((item) => item._id === status)?.count || 0
@@ -308,7 +307,7 @@ export const getDashboardData = async (req, res, next) => {
       return acc
     }, {})
 
-    // Fetch recent 10 tasks
+    
     const recentTasks = await Task.find()
       .sort({ createdAt: -1 })
       .limit(10)
@@ -339,12 +338,12 @@ export const userDashboardData = async (req, res, next) => {
 
     // console.log(userId)
 
-    // Convert userId to ObjectId for proper matching
+    
     const userObjectId = new mongoose.Types.ObjectId(userId)
 
     // console.log(userObjectId)
 
-    // fetch statistics for user-specific tasks
+    
     const totalTasks = await Task.countDocuments({ assignedTo: userId })
     const pendingTasks = await Task.countDocuments({
       assignedTo: userId,
@@ -360,7 +359,7 @@ export const userDashboardData = async (req, res, next) => {
       dueDate: { $lt: new Date() },
     })
 
-    // Task distribution by status
+    
     const taskStatuses = ["Pending", "In Progress", "Completed"]
 
     const taskDistributionRaw = await Task.aggregate([
@@ -385,7 +384,7 @@ export const userDashboardData = async (req, res, next) => {
 
     taskDistribution["All"] = totalTasks
 
-    // Task distribution by priority
+    
     const taskPriorities = ["Low", "Medium", "High"]
 
     const taskPriorityLevelRaw = await Task.aggregate([

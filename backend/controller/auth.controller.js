@@ -17,14 +17,14 @@ export const signup = async (req, res, next) => {
     return next(errorHandler(400, "All fields are required"))
   }
 
-  //   Check if user already exists
+ 
   const isAlreadyExist = await User.findOne({ email })
 
   if (isAlreadyExist) {
     return next(errorHandler(400, "User already exists"))
   }
 
-  //   check user role
+ 
   let role = "user"
 
   if (adminJoinCode && adminJoinCode === process.env.ADMIN_JOIN_CODE) {
@@ -64,7 +64,7 @@ export const signin = async (req, res, next) => {
       return next(errorHandler(404, "User not found!"))
     }
 
-    // compare password
+   
     const validPassword = bcryptjs.compareSync(password, validUser.password)
 
     if (!validPassword) {
@@ -73,12 +73,13 @@ export const signin = async (req, res, next) => {
 
     const token = jwt.sign(
       { id: validUser._id, role: validUser.role },
-      process.env.JWT_SECRET
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
     )
 
     const { password: pass, ...rest } = validUser._doc
 
-    res.status(200).cookie("access_token", token, { httpOnly: true }).json(rest)
+    res.status(200).cookie("access_token", token, { httpOnly: true,secure: false,sameSite: "lax",maxAge: 168 * 60 * 60 * 1000 }).json(rest)
   } catch (error) {
     next(error)
   }
@@ -131,15 +132,30 @@ export const uploadImage = async (req, res, next) => {
       return next(errorHandler(400, "No file uploaded"))
     }
 
-    const imageUrl = `${req.protocol}://${req.get("host")}/uploads/${
-      req.file.filename
-    }`
+    const imageUrl = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`
 
-    res.status(200).json({ imageUrl })
+    
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user.id,
+      { profileImageUrl: imageUrl },
+      { new: true }
+    )
+
+    if (!updatedUser) {
+      return next(errorHandler(404, "User not found"))
+    }
+
+    const { password, ...rest } = updatedUser._doc
+
+   
+    res.status(200).json(rest)
+
   } catch (error) {
     next(error)
   }
 }
+
+
 
 export const signout = async (req, res, next) => {
   try {
